@@ -59,3 +59,79 @@ class SchoolDataset(Dataset):
 
 
 
+
+class SchoolDatasetBinary(Dataset):
+    """Face Landmarks dataset."""
+
+    def __init__(self, csv_file, root_dir, transform = None):
+        """
+        Args:
+            csv_file (string): Path to the csv file with annotations.
+            root_dir (string): Directory with all the images.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.schools_df = pd.read_csv(csv_file)
+        # self.schools_df['weight'] = self.schools_df['overall_mean'].apply(lambda x: classify_schools(x))
+        self.image_paths = []
+        self.labels = []
+        self.data = []
+
+        for image in os.listdir(root_dir):
+            cur_schoolid = image.split(".")[0]
+            cur_df = self.schools_df[self.schools_df['school_id'] == int(cur_schoolid)]
+            self.labels.append(cur_df.intervention.values[0])
+            self.image_paths.append(os.path.join(root_dir, image))
+            self.data.append((self.loadImage(os.path.join(root_dir, image)), cur_df.intervention.values[0]))
+
+    def loadImage(self, impath):
+        to_tens = transforms.ToTensor()
+        return to_tens(Image.open(impath).convert('RGB'))
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        path = self.image_paths[index]
+        return self.loadImage(path), self.labels[index]
+
+
+
+    
+class AugmentedSchoolDatasetBinary(Dataset):
+    """Face Landmarks dataset."""
+
+    def __init__(self, csv_file, root_dir, transform = None):
+        """
+        Args:
+            csv_file (string): Path to the csv file with annotations.
+            root_dir (string): Directory with all the images.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.schools_df = pd.read_csv(csv_file)
+        # self.schools_df['weight'] = self.schools_df['overall_mean'].apply(lambda x: classify_schools(x))
+        self.image_paths = []
+        self.labels = []
+        self.data = []
+
+        for image in os.listdir(root_dir):
+            cur_schoolid = image.split(".")[0]
+            cur_df = self.schools_df[self.schools_df['school_id'] == int(cur_schoolid)]
+            self.labels.append(cur_df.intervention.values[0])
+            self.image_paths.append(os.path.join(root_dir, image))
+            self.data.append((self.loadImage(os.path.join(root_dir, image)), cur_df.intervention.values[0]))
+
+    def loadImage(self, impath):
+        to_tens = transforms.ToTensor()
+        return to_tens(Image.open(impath).convert('RGB'))
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        path = self.image_paths[index]
+        return self.loadImage(path), self.labels[index]
+
+
+
